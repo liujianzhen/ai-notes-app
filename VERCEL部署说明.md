@@ -10,7 +10,12 @@ Vercel在部署过程中会进行TypeScript类型检查。如果您的项目包�
 
 #### React-Markdown组件的类型错误
 
-我们已经修复了MarkdownEditor.tsx文件中的类型错误。错误的原因是react-markdown库中的组件需要正确的类型定义。我们通过定义自己的CodeProps接口解决了这个问题：
+我们已经修复了两个文件中的类型错误：
+
+1. **MarkdownEditor.tsx** - 使用自定义CodeProps接口解决了类型问题
+2. **MarkdownRenderer.tsx** - 同样需要为所有组件参数添加类型定义
+
+错误的原因是react-markdown库中的组件需要正确的类型定义。我们通过定义自己的接口解决了这个问题：
 
 ```typescript
 // 定义自己的Code组件props类型
@@ -21,6 +26,23 @@ interface CodeProps {
   children?: React.ReactNode;
   [key: string]: any;
 }
+
+// 定义其他Markdown元素的props类型
+interface NodeProps {
+  node?: any;
+  children?: React.ReactNode;
+  [key: string]: any;
+}
+```
+
+这些接口需要应用到所有Markdown相关组件的属性解构中：
+
+```typescript
+// 错误写法
+code({node, inline, className, children, ...props}) { ... }
+
+// 正确写法（带类型注解）
+code({node, inline, className, children, ...props}: CodeProps) { ... }
 ```
 
 如果您在部署过程中遇到其他类型错误，请检查控制台输出，并根据错误信息修复相应的类型定义。

@@ -196,4 +196,110 @@
 - 确保已下载所需的语言模型：`ollama pull qwen3:30b-a3b`
 - 在运行脚本前检查当前工作目录
 - 如果修改了 Prisma 模型，需要重新生成客户端
-- 使用 Supabase 时需要创建项目并设置数据库表结构 
+- 使用 Supabase 时需要创建项目并设置数据库表结构
+
+# 问题排查指南
+
+本文档记录了在开发和部署AI笔记应用时可能遇到的常见问题及其解决方案。
+
+## 目录
+
+1. [前端问题](#前端问题)
+   - [React组件渲染问题](#react组件渲染问题)
+   - [Markdown渲染问题](#markdown渲染问题)
+   - [Vercel部署TypeScript错误](#vercel部署typescript错误)
+2. [后端问题](#后端问题)
+   - [API连接问题](#api连接问题)
+   - [数据库问题](#数据库问题)
+   - [AI功能问题](#ai功能问题)
+
+## 前端问题
+
+### React组件渲染问题
+
+**问题**: 页面无法正确渲染或显示空白
+
+**解决方案**:
+1. 检查控制台错误信息
+2. 确认组件是否已正确导入
+3. 使用React开发者工具检查组件树
+4. 验证状态管理是否正确工作
+
+### Markdown渲染问题
+
+**问题**: Markdown内容无法正确显示或样式异常
+
+**解决方案**:
+1. 确保react-markdown库已正确安装和导入
+2. 检查Markdown字符串格式是否正确
+3. 验证自定义渲染组件是否按预期工作
+4. 检查CSS样式是否被覆盖
+
+### Vercel部署TypeScript错误
+
+**问题**: Vercel部署失败，显示"Property 'inline' does not exist on type ..."等类型错误
+
+**解决方案**:
+1. 这是由于react-markdown库的TypeScript类型定义问题导致的
+2. 需要为所有使用ReactMarkdown自定义组件的文件添加正确的类型定义:
+
+```typescript
+// 添加自定义类型定义
+interface CodeProps {
+  node?: any;
+  inline?: boolean;
+  className?: string;
+  children?: React.ReactNode;
+  [key: string]: any;
+}
+
+// 为其他Markdown元素添加类型定义
+interface NodeProps {
+  node?: any;
+  children?: React.ReactNode;
+  [key: string]: any;
+}
+
+// 在组件中使用类型注解
+code({node, inline, className, children, ...props}: CodeProps) {
+  // 实现代码
+}
+```
+
+3. 主要需要修改的文件包括:
+   - `src/components/notes/MarkdownEditor.tsx`
+   - `src/components/notes/MarkdownRenderer.tsx`
+
+4. 查看详细部署指南请参考项目根目录的`VERCEL部署说明.md`文件
+
+## 后端问题
+
+### API连接问题
+
+**问题**: 无法连接到后端API服务
+
+**解决方案**:
+1. 确认API服务是否已启动运行
+2. 检查API端口是否被占用（默认9000端口）
+3. 确认网络请求URL是否正确
+4. 验证跨域设置是否正确
+
+### 数据库问题
+
+**问题**: 数据无法保存或检索
+
+**解决方案**:
+1. 确认Supabase连接配置是否正确
+2. 检查数据库表结构是否符合应用需求
+3. 验证RLS（行级安全）策略是否正确配置
+4. 查看Supabase控制台中的查询日志
+
+### AI功能问题
+
+**问题**: AI摘要或标签推荐功能无法正常工作
+
+**解决方案**:
+1. 确认本地Ollama服务是否已启动并运行
+2. 检查Python FastAPI服务是否正常运行（默认9000端口）
+3. 验证选定的AI模型是否已正确下载并加载
+4. 查看API服务的日志信息以获取更多详细错误信息 
